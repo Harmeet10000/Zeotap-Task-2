@@ -12,47 +12,46 @@ const metros = [
   "Kolkata",
   "Hyderabad",
 ];
-const POLLING_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 const App = () => {
   const [query, setQuery] = useState({ q: "" });
   const [units, setUnits] = useState("metric");
-  const [weatherData, setWeatherData] = useState([]); // Collect weather data for roll-ups
-  const [weather, setWeather] = useState(null); // Selected city weather
-  const [loading, setLoading] = useState(false); // Loading state
+  const [weatherData, setWeatherData] = useState([]);
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState(5); // Default 5 minutes
 
-  // Fetch weather data for all metros every 5 minutes
+  // Convert polling interval from minutes to milliseconds
+  const intervalInMilliseconds = pollingInterval * 60 * 1000;
+
   const startPollingWeatherData = () => {
     const fetchWeatherForMetros = async () => {
       setLoading(true);
-      // let count = 0;
-      // console.log("Fetching weather data for metros...", count => count + 1);
-      const data = [];
-      for (const city of metros) {
-        try {
-          const weather = await getFormattedWeatherData({ q: city, units });
-          data.push(weather); // Collect weather data for each city
-        } catch (error) {
-          console.error(`Error fetching weather for ${city}:`, error);
-        }
+
+      try {
+        const weatherPromises = metros.map((city) =>
+          getFormattedWeatherData({ q: city, units })
+        );
+        const data = await Promise.all(weatherPromises);
+        setWeatherData(data);
+      } catch (error) {
+        console.error("Error fetching weather for metros:", error);
+        toast.error("Failed to fetch weather data for some cities.");
+      } finally {
+        setLoading(false);
       }
-      setWeatherData(data); // Store all collected data
-      setLoading(false);
     };
 
     fetchWeatherForMetros(); // Initial fetch
 
-    const interval = setInterval(fetchWeatherForMetros, POLLING_INTERVAL);
-    return () => clearInterval(interval); // Cleanup interval on unmount
+    const interval = setInterval(fetchWeatherForMetros, intervalInMilliseconds);
+    return () => clearInterval(interval); // Cleanup on unmount
   };
 
-  // Start polling on component mount
   useEffect(() => {
-    // console.log("saare env",import.meta.env);
     startPollingWeatherData();
-  }, [units]);
+  }, [units, pollingInterval]);
 
-  // Fetch weather for selected city when query changes
   useEffect(() => {
     if (!query.q && (!query.lat || !query.lon)) return;
 
@@ -64,7 +63,7 @@ const App = () => {
 
       try {
         const data = await getFormattedWeatherData({ ...query, units });
-        setWeather(data); // Store selected city weather
+        setWeather(data);
         toast.success(`Fetched weather for ${data.name}, ${data.country}`);
       } catch (error) {
         console.error("Error fetching weather:", error);
@@ -75,10 +74,21 @@ const App = () => {
     fetchWeather();
   }, [query, units]);
 
-  const weatherDetails = weather || weatherData; // Use specific weather if query is set
+  const weatherDetails = weather || weatherData;
 
   return (
     <div>
+      <div className="flex justify-center items-center my-4">
+        <label className=" mr-2">Polling Interval (minutes):</label>
+        <input
+          type="number"
+          value={pollingInterval}
+          onChange={(e) => setPollingInterval(Number(e.target.value))}
+          className="p-2 rounded bg-gray-100"
+          min={1} // Minimum interval is 1 minute
+        />
+      </div>
+
       {loading ? (
         <p className="text-white text-xl text-center">
           Loading weather data...
@@ -92,7 +102,7 @@ const App = () => {
         />
       )}
 
-      <ToastContainer autoClose={3000} theme="colored" newestOnTop={true} />
+      <ToastContainer autoClose={1000} theme="colored" newestOnTop={true} />
     </div>
   );
 };

@@ -3,20 +3,16 @@ import { DateTime } from "luxon";
 const API_KEY = import.meta.env.VITE_APP_API_KEY;
 const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-// console.log("API_KEY", API_KEY, "BASE_URL", BASE_URL);
 
 const getWeatherData = (infoType, searchParams) => {
-  // console.log("API_KEY", API_KEY, "BASE_URL", BASE_URL);
   const url = new URL(BASE_URL + "/" + infoType);
   url.search = new URLSearchParams({ ...searchParams, appid: API_KEY });
-  // console.log("Request URL:", url.toString());
 
   return fetch(url)
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Error fetching data: ${res.statusText}`);
       }
-      // console.log("Request URL:", url.toString());
 
       return res.json();
     })
@@ -27,7 +23,6 @@ const getWeatherData = (infoType, searchParams) => {
 };
 
 const formatCurrentWeather = (data) => {
-  // console.log("data", data);
   const {
     coord: { lat, lon },
     main: { temp, feels_like, temp_min, temp_max, humidity },
@@ -61,26 +56,8 @@ const formatCurrentWeather = (data) => {
   };
 };
 
-// const formatForecastWeather = (data) => {
-//   let { timezone, daily, hourly } = data;
-
-//   daily = daily.slice(1, 6).map(({ dt, temp, weather }) => ({
-//     title: formatToLocalTime(dt, timezone, "ccc"),
-//     temp: temp.day,
-//     icon: weather[0].icon,
-//   }));
-
-//   hourly = hourly.slice(1, 6).map(({ dt, temp, weather }) => ({
-//     title: formatToLocalTime(dt, timezone, "hh:mm a"),
-//     temp,
-//     icon: weather[0].icon,
-//   }));
-
-//   return { timezone, daily, hourly };
-// };
 
 const getFormattedWeatherData = async (searchParams) => {
-  // console.log("searchParams", searchParams);
   const formattedCurrentWeather = await getWeatherData(
     "weather",
     searchParams

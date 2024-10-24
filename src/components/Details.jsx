@@ -1,5 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable react/prop-types */
+import { lazy, Suspense } from "react";
 import {
   UilTemperature,
   UilTear,
@@ -10,21 +11,24 @@ import {
 import { formatToLocalTime, iconUrlFromCode } from "../services/weatherService";
 import TopButtons from "./TopButtons";
 import Inputs from "./Inputs";
-import Summary from "./Summary";
-import Charts from "./Charts";
 
-const Details = ({ weatherData, units, setQuery, setUnits }) => {
-  // console.log("Details", weatherData);
+// Lazy load Summary and Charts components
+const Summary = lazy(() => import("./Summary"));
+const Charts = lazy(() => import("./Charts"));
 
-  // Function to handle background formatting based on weather data
+const Details = ({
+  weatherData,
+  units,
+  setQuery,
+  setUnits,
+
+}) => {
   const formatBackground = (weatherDetails) => {
     const cityWeather = weatherDetails.hasOwnProperty("lat")
       ? weatherDetails
-      : Object.values(weatherDetails)[0]; // Default to first city if multiple cities
+      : Object.values(weatherDetails)[0];
 
-    // console.log("cityWeather", cityWeather);
-
-    if (!cityWeather) return "from-cyan-700 to-blue-700"; // Default background
+    if (!cityWeather) return "from-cyan-700 to-blue-700";
 
     const threshold = units === "metric" ? 20 : 60;
     return cityWeather.temp <= threshold
@@ -32,7 +36,6 @@ const Details = ({ weatherData, units, setQuery, setUnits }) => {
       : "from-yellow-700 to-orange-700";
   };
 
-  // Helper function to render weather details for a city
   const renderCityWeather = (cityKey, data) => {
     const {
       temp,
@@ -125,7 +128,6 @@ const Details = ({ weatherData, units, setQuery, setUnits }) => {
           </p>
         </div>
 
-        {/* Horizontal Rule for separation */}
         <hr className="my-6 border-t-2 border-cyan-500 w-3/4 mx-auto" />
       </div>
     );
@@ -135,20 +137,26 @@ const Details = ({ weatherData, units, setQuery, setUnits }) => {
 
   return (
     <div
-      className={`mx-auto max-w-screen-lg mt-4 py-5 px-16 bg-gradient-to-br h-fit  shadow-gray-400 ${formatBackground(
+      className={`mx-auto max-w-screen-lg mt-4 py-5 px-16 bg-gradient-to-br h-fit shadow-gray-400 ${formatBackground(
         weatherData
       )}`}
     >
       <TopButtons setQuery={setQuery} />
       <Inputs setQuery={setQuery} units={units} setUnits={setUnits} />
+
       {isSingleCity
         ? renderCityWeather(weatherData.name, weatherData)
         : Object.keys(weatherData).map((city) =>
             renderCityWeather(city, weatherData[city])
           )}
 
-      <Summary weatherData={weatherData} units={units} />
-      <Charts units={units} />
+      <Suspense fallback={<div>Loading Summary...</div>}>
+        <Summary weatherData={weatherData} units={units} />
+      </Suspense>
+
+      <Suspense fallback={<div>Loading Charts...</div>}>
+        <Charts units={units} />
+      </Suspense>
     </div>
   );
 };

@@ -15,13 +15,17 @@ const Summary = ({ weatherData, units }) => {
     alerts: [],
   });
 
-  // Fetch user settings from localStorage on component mount
+  const USER_API_ID = import.meta.env.VITE_APP_USER_API_ID || "";
+  const EMAIL_SERVICE_ID = import.meta.env.VITE_APP_EMAIL_SERVICE_ID || "";
+  const TEMPLATE_ID = import.meta.env.VITE_APP_TEMPLATE_ID || "";
+
+  // Load user settings on component mount
   useEffect(() => {
     const storedToken = JSON.parse(localStorage.getItem("userToken"));
     if (storedToken) setUserToken(storedToken);
   }, []);
 
-  // Update state whenever weatherData changes (handle both array and object)
+  // Recalculate summary whenever weather data changes
   useEffect(() => {
     if (weatherData) {
       const data = Array.isArray(weatherData) ? weatherData : [weatherData];
@@ -32,15 +36,6 @@ const Summary = ({ weatherData, units }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserToken((prev) => ({ ...prev, [name]: value, consecutiveExceed: 0 }));
-  };
-
-  const handleUnitChange = (e) => {
-    const selectedUnit = e.target.value;
-    setUserToken((prev) => ({
-      ...prev,
-      unit: selectedUnit,
-      consecutiveExceed: 0,
-    }));
   };
 
   const handleSave = () => {
@@ -64,13 +59,6 @@ const Summary = ({ weatherData, units }) => {
     localStorage.setItem("userToken", JSON.stringify(updatedToken));
   };
 
-  const convertTemperature = (value, fromUnit, toUnit) => {
-    if (fromUnit === toUnit) return value;
-    return fromUnit === "metric"
-      ? (value * 9) / 5 + 32
-      : ((value - 32) * 5) / 9;
-  };
-
   const calculateDailySummary = (data) => {
     const summaries = data.map(createCitySummary);
     setDailySummary(summaries);
@@ -79,37 +67,17 @@ const Summary = ({ weatherData, units }) => {
   };
 
   const createCitySummary = (data) => {
-    const {
-      name: city,
-      temp,
-      temp_min,
-      temp_max,
-      details: weatherCondition,
-    } = data;
-    const temperatureUnit = units === "metric" ? "°C" : "°F";
-    const reason = determineReason(weatherCondition);
+    const { name: city, temp, temp_min, temp_max, details } = data;
+    const unitSymbol = units === "metric" ? "°C" : "°F";
     return {
       date: new Date().toLocaleDateString(),
       city,
       tempAvg: parseFloat(temp.toFixed(2)),
       tempMax: temp_max,
       tempMin: temp_min,
-      dominantCondition: weatherCondition,
-      reason,
-      unit: temperatureUnit,
+      dominantCondition: details,
+      unit: unitSymbol,
     };
-  };
-
-  const determineReason = (weatherCondition) => {
-    const condition = weatherCondition.toLowerCase();
-    if (condition.includes("rain")) return "Frequent rainfall observed.";
-    if (condition.includes("mist") || condition.includes("haze"))
-      return "Visibility is reduced due to mist/haze.";
-    if (condition.includes("clear"))
-      return "Clear skies with no significant weather activity.";
-    if (condition.includes("cloud"))
-      return "Overcast or partly cloudy conditions throughout the day.";
-    return "Dominant weather condition based on observed data.";
   };
 
   const storeDailySummary = (summaries) => {
@@ -141,11 +109,11 @@ const Summary = ({ weatherData, units }) => {
 
       const updatedAlerts = exceedCities.reduce(
         (alerts, city) => {
-          const existingAlertIndex = alerts.findIndex(
+          const alertIndex = alerts.findIndex(
             (alert) => alert.cities === city.city
           );
-          if (existingAlertIndex >= 0) {
-            alerts[existingAlertIndex].count += 1;
+          if (alertIndex >= 0) {
+            alerts[alertIndex].count += 1;
           } else {
             alerts.push({
               cities: city.city,
@@ -165,7 +133,7 @@ const Summary = ({ weatherData, units }) => {
       }));
 
       if (newConsecutiveExceed >= 2) {
-        sendEmailAlert(exceedCities); // Send email alert
+        sendEmailAlert(exceedCities);
       } else {
         toast.warn(
           `Temperature exceeded in ${exceedCities
@@ -182,19 +150,44 @@ const Summary = ({ weatherData, units }) => {
     }
   };
 
-  const USER_API_ID = import.meta.env.VITE_APP_USER_API_ID || "";
-  const EMAIL_SERVICE_ID = import.meta.env.VITE_APP_EMAIL_SERVICE_ID || "";
-  const TEMPLATE_ID = import.meta.env.VITE_APP_TEMPLATE_ID || "";
+  const convertTemperature = (value, fromUnit, toUnit) => {
+    return fromUnit === toUnit
+      ? value
+      : fromUnit === "metric"
+      ? (value * 9) / 5 + 32
+      : ((value - 32) * 5) / 9;
+  };
 
-  const sendEmailAlert = (exceedCities) => {
-    const cityNames = exceedCities
-      .map((city) => `${city.city}`)
-      .join("");
-    const templateParams = { to_email: userToken.email, city_names: cityNames };
-    emailjs
-      .send(EMAIL_SERVICE_ID, TEMPLATE_ID, templateParams, USER_API_ID)
-      .then(() => toast.success("Email alert sent successfully!"))
-      .catch(() => toast.error("Failed to send email alert."));
+  const sendEmailAlert = async (exceedCities) => {
+    const cityNames = exceedCities.map((city) => city.city).join(", ");
+
+    const templateParams = {
+      to_email: userToken.email,
+      city_names: cityNames,
+    };
+
+    if (!validateEmail(userToken.email)) {
+      toast.error("Invalid email address.");
+      return;
+    }
+
+    try {
+      await emailjs.send(
+        EMAIL_SERVICE_ID,
+        TEMPLATE_ID,
+        templateParams,
+        USER_API_ID
+      );
+      toast.success("Email alert sent successfully!");
+    } catch (error) {
+      console.error("Email sending error:", error);
+      toast.error("Failed to send email alert.");
+    }
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   return (
@@ -210,25 +203,14 @@ const Summary = ({ weatherData, units }) => {
           placeholder="Enter city to add"
           className="mb-2 p-2 rounded bg-gray-100 w-1/2"
         />
-        <div className="flex items-center w-1/2">
-          <input
-            type="number"
-            name="threshold"
-            value={userToken.threshold}
-            onChange={handleInputChange}
-            placeholder="Enter temperature threshold"
-            className="mb-2 p-2 rounded bg-gray-100 w-1/2 mr-2"
-          />
-          <select
-            name="unit"
-            value={userToken.unit}
-            onChange={handleUnitChange}
-            className="mb-2 p-2 rounded bg-gray-100 w-1/2"
-          >
-            <option value="metric">Celsius (°C)</option>
-            <option value="imperial">Fahrenheit (°F)</option>
-          </select>
-        </div>
+        <input
+          type="number"
+          name="threshold"
+          value={userToken.threshold}
+          onChange={handleInputChange}
+          placeholder="Enter temperature threshold"
+          className="mb-2 p-2 rounded bg-gray-100 w-1/2"
+        />
         <input
           type="email"
           name="email"
@@ -241,12 +223,12 @@ const Summary = ({ weatherData, units }) => {
           className="bg-cyan-500 text-white px-4 py-2 rounded mt-2"
           onClick={handleSave}
         >
-          Save Threshold, Cities, and Email
+          Save Settings
         </button>
       </div>
 
       {!dailySummary ? (
-        <div className="flex justify-center items-center">
+        <div className="text-center">
           <button
             className="bg-cyan-500 text-white px-4 py-2 rounded mb-4"
             onClick={() => calculateDailySummary(weatherData)}
@@ -279,12 +261,8 @@ const Summary = ({ weatherData, units }) => {
               {summary.unit}
             </p>
             <p>
-              <strong>Dominant Weather Condition: </strong>
+              <strong>Condition: </strong>
               {summary.dominantCondition}
-            </p>
-            <p>
-              <strong>Reason: </strong>
-              {summary.reason}
             </p>
           </div>
         ))
