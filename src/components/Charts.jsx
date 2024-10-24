@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 
@@ -41,47 +41,56 @@ const Charts = () => {
     return colors[city] || "#000000";
   };
 
-const generateLineChartData = (type) => {
-  const limitedWeatherSummaries = cities.reduce((acc, city) => {
-    const cityEntries = weatherSummaries
-      .filter((summary) => summary.city === city)
-      .slice(0, 15); // Take only the first 15 entries for each city
-    return [...acc, ...cityEntries];
-  }, []);
-
-  const labels = limitedWeatherSummaries
-    .slice(0, 15)
-    .map((_, index) => `Entry ${index + 1}`);
-
-  return {
-    labels: labels, // Only 15 labels for the x-axis
-    datasets: cities.map((city) => ({
-      label: `${city} ${type}`,
-      data: limitedWeatherSummaries
+  const generateLineChartData = (type) => {
+    const limitedWeatherSummaries = cities.reduce((acc, city) => {
+      const cityEntries = weatherSummaries
         .filter((summary) => summary.city === city)
-        .slice(0, 15) // Ensure only 15 data points per city
-        .map((summary) => summary[type]),
-      borderColor: getColor(city),
-      fill: false,
-    })),
+        .slice(0, 15); // Take only the first 15 entries for each city
+      return [...acc, ...cityEntries];
+    }, []);
+
+    const labels = limitedWeatherSummaries
+      .slice(0, 15)
+      .map((_, index) => `Entry ${index + 1}`);
+
+    return {
+      labels: labels, // Only 15 labels for the x-axis
+      datasets: cities.map((city) => ({
+        label: `${city} ${type}`,
+        data: limitedWeatherSummaries
+          .filter((summary) => summary.city === city)
+          .slice(0, 15) // Ensure only 15 data points per city
+          .map((summary) => summary[type]),
+        borderColor: getColor(city),
+        fill: false,
+      })),
+    };
   };
-};
 
+  // Group alerts by city and sum their counts
+  const groupedAlerts = alerts.reduce((acc, alert) => {
+    if (acc[alert.cities]) {
+      acc[alert.cities] += alert.count;
+    } else {
+      acc[alert.cities] = alert.count;
+    }
+    return acc;
+  }, {});
 
-
+  // Prepare the data for the chart
   const barChartData = {
-    labels: alerts.map((alert) => alert.cityNames).flat(),
+    labels: Object.keys(groupedAlerts), // Cities as labels on the x-axis
     datasets: [
       {
-        label: "Alerts",
-        data: alerts.map(() => 1), // Each alert counts as 1
+        label: "Alert Counts",
+        data: Object.values(groupedAlerts), // Counts as data on the y-axis
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
     ],
   };
 
   return (
-    <div className="my-8 bg-white ">
+    <div className="my-8 bg-white pb-9 ">
       <h2 className="text-center text-2xl font-bold mb-1">Charts</h2>
 
       {/* Line Chart: Avg Temperature */}

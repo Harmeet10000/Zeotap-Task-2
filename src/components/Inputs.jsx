@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import { UilSearch, UilLocationPoint } from "@iconscout/react-unicons";
 import { toast } from "react-toastify";
 
@@ -12,7 +13,7 @@ const Inputs = ({ setQuery, units, setUnits }) => {
 
   const handleSearchClick = () => {
     if (city !== "") setQuery({ q: city });
-    console.log("city", city,  );
+    // console.log("city", city,  );
   };
 
   const handleLocationClick = () => {

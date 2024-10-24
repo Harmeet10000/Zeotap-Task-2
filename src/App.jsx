@@ -48,7 +48,7 @@ const App = () => {
 
   // Start polling on component mount
   useEffect(() => {
-    console.log("saare env",import.meta.env);
+    // console.log("saare env",import.meta.env);
     startPollingWeatherData();
   }, [units]);
 

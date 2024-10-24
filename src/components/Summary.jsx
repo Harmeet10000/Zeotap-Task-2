@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import emailjs from "@emailjs/browser";
 
@@ -14,15 +15,18 @@ const Summary = ({ weatherData, units }) => {
     alerts: [],
   });
 
-  // Fetch user settings from localStorage on render
+  // Fetch user settings from localStorage on component mount
   useEffect(() => {
     const storedToken = JSON.parse(localStorage.getItem("userToken"));
     if (storedToken) setUserToken(storedToken);
   }, []);
 
-  // Update state whenever weatherData changes
+  // Update state whenever weatherData changes (handle both array and object)
   useEffect(() => {
-    if (weatherData && weatherData.length > 0) calculateDailySummary();
+    if (weatherData) {
+      const data = Array.isArray(weatherData) ? weatherData : [weatherData];
+      calculateDailySummary(data);
+    }
   }, [weatherData]);
 
   const handleInputChange = (e) => {
@@ -67,10 +71,8 @@ const Summary = ({ weatherData, units }) => {
       : ((value - 32) * 5) / 9;
   };
 
-  const calculateDailySummary = () => {
-    if (!weatherData || weatherData.length === 0) return;
-
-    const summaries = weatherData.map(createCitySummary);
+  const calculateDailySummary = (data) => {
+    const summaries = data.map(createCitySummary);
     setDailySummary(summaries);
     storeDailySummary(summaries);
     checkThresholds(summaries);
@@ -136,13 +138,34 @@ const Summary = ({ weatherData, units }) => {
 
     if (exceedCities.length > 0) {
       const newConsecutiveExceed = storedToken.consecutiveExceed + 1;
+
+      const updatedAlerts = exceedCities.reduce(
+        (alerts, city) => {
+          const existingAlertIndex = alerts.findIndex(
+            (alert) => alert.cities === city.city
+          );
+          if (existingAlertIndex >= 0) {
+            alerts[existingAlertIndex].count += 1;
+          } else {
+            alerts.push({
+              cities: city.city,
+              count: 1,
+              timestamp: new Date().toISOString(),
+            });
+          }
+          return alerts;
+        },
+        [...storedToken.alerts]
+      );
+
       setUserToken((prev) => ({
         ...prev,
         consecutiveExceed: newConsecutiveExceed,
+        alerts: updatedAlerts,
       }));
+
       if (newConsecutiveExceed >= 2) {
-        sendEmailAlert(exceedCities);
-        setUserToken((prev) => ({ ...prev, consecutiveExceed: 0 }));
+        sendEmailAlert(exceedCities); // Send email alert
       } else {
         toast.warn(
           `Temperature exceeded in ${exceedCities
@@ -150,16 +173,16 @@ const Summary = ({ weatherData, units }) => {
             .join(", ")}. Exceedance count: ${newConsecutiveExceed}`
         );
       }
+
       storeUserSettings({
         ...storedToken,
         consecutiveExceed: newConsecutiveExceed,
+        alerts: updatedAlerts,
       });
     }
   };
 
-  const USER_API_ID =
-    import.meta.env.VITE_APP_USER_API_ID || "";
-  console.log("USER_API_ID", USER_API_ID);
+  const USER_API_ID = import.meta.env.VITE_APP_USER_API_ID || "";
 
   const sendEmailAlert = (exceedCities) => {
     const cityNames = exceedCities
@@ -169,7 +192,7 @@ const Summary = ({ weatherData, units }) => {
     emailjs
       .send("service_735smho", "template_b598kdu", templateParams, USER_API_ID)
       .then(() => toast.success("Email alert sent successfully!"))
-      .catch((error) => toast.error("Failed to send email alert."));
+      .catch(() => toast.error("Failed to send email alert."));
   };
 
   return (
@@ -177,7 +200,6 @@ const Summary = ({ weatherData, units }) => {
       <h2 className="text-center text-2xl font-bold text-white mb-4">
         Daily Weather Summary
       </h2>
-
       <div className="flex flex-col items-center mb-4">
         <input
           type="text"
@@ -205,7 +227,6 @@ const Summary = ({ weatherData, units }) => {
             <option value="imperial">Fahrenheit (°F)</option>
           </select>
         </div>
-
         <input
           type="email"
           name="email"
@@ -226,7 +247,7 @@ const Summary = ({ weatherData, units }) => {
         <div className="flex justify-center items-center">
           <button
             className="bg-cyan-500 text-white px-4 py-2 rounded mb-4"
-            onClick={calculateDailySummary}
+            onClick={() => calculateDailySummary(weatherData)}
           >
             Generate Daily Summary
           </button>
