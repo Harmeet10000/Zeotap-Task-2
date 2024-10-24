@@ -183,14 +183,16 @@ const Summary = ({ weatherData, units }) => {
   };
 
   const USER_API_ID = import.meta.env.VITE_APP_USER_API_ID || "";
+  const EMAIL_SERVICE_ID = import.meta.env.VITE_APP_EMAIL_SERVICE_ID || "";
+  const TEMPLATE_ID = import.meta.env.VITE_APP_TEMPLATE_ID || "";
 
   const sendEmailAlert = (exceedCities) => {
     const cityNames = exceedCities
-      .map((city) => `<li>${city.city}</li>`)
+      .map((city) => `${city.city}`)
       .join("");
     const templateParams = { to_email: userToken.email, city_names: cityNames };
     emailjs
-      .send("service_735smho", "template_b598kdu", templateParams, USER_API_ID)
+      .send(EMAIL_SERVICE_ID, TEMPLATE_ID, templateParams, USER_API_ID)
       .then(() => toast.success("Email alert sent successfully!"))
       .catch(() => toast.error("Failed to send email alert."));
   };
