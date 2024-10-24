@@ -83,6 +83,10 @@ Below are the key dependencies required for the project. Refer to `package.json`
 
 ---
 
+## Note
+
+The forecast weather functionality could not be implemented as OpenWeather has made it a paid feature under their OneCall API.
+
 ## API Configuration
 
 - **VITE_APP_API_URL**: Base URL for the OpenWeatherMap API.
