@@ -2,12 +2,14 @@
 # Zeotap Weather Application
 
 ## Overview
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2002-02-19.png)
 
 The **Zeotap Weather Application** is a **React-based weather dashboard** that fetches and visualizes weather data for selected cities. It tracks real-time metrics such as temperature and weather conditions, alerts users if thresholds are exceeded, and sends email notifications.
 
 ---
 
 ## Features
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-30-15.png)
 
 - **Real-Time Weather Data**: Fetches current weather conditions from OpenWeatherMap API.
 - **Alerts with Email Notifications**: Notifies users when temperature thresholds are crossed.
@@ -81,6 +83,10 @@ Below are the key dependencies required for the project. Refer to `package.json`
 
 ---
 
+## Note
+
+The forecast weather functionality could not be implemented as OpenWeather has made it a paid feature under their OneCall API.
+
 ## API Configuration
 
 - **VITE_APP_API_URL**: Base URL for the OpenWeatherMap API.
@@ -150,5 +156,14 @@ This project is licensed under the MIT License.
 3. **Test Thoroughly** and submit a **Pull Request**.
 
 ---
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-11-20.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-11-40.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-12-49.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-30-25.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-32-24.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-32-43.png)
+
+
+
 
 This README provides a comprehensive guide to setting up, running, and understanding the Zeotap Weather Application. If you encounter any issues or need further assistance, feel free to reach out.
