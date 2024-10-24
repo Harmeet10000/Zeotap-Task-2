@@ -47,7 +47,7 @@ Below are the key dependencies required for the project. Refer to `package.json`
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/Harmeet10000/Zeotap-Task-2.git
-   cd zeotap-weather
+   cd Zeotap-Task-2
    ```
 
 2. **Install Dependencies**:
