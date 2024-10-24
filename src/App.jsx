@@ -23,7 +23,7 @@ const App = () => {
 
   // Convert polling interval from minutes to milliseconds
   const intervalInMilliseconds = pollingInterval * 60 * 1000;
-
+  console.log("App.jsx");
   const startPollingWeatherData = () => {
     const fetchWeatherForMetros = async () => {
       setLoading(true);
