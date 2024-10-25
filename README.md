@@ -144,7 +144,6 @@ The `.env.local` file ensures sensitive environment variables are not checked in
 ## Future Improvements
 
 - **Forecast Data**: Add support for hourly and 7-day forecasts.
-- **Multiple Units**: Enable switching between Celsius, Fahrenheit, and Kelvin.
 - **User Authentication**: Allow users to save preferences across devices.
 
 ---
