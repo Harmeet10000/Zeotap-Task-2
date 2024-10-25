@@ -1,0 +1,74 @@
+Documentation for Weather Service Module
+
+This module provides functions to fetch, format, and display weather data using the OpenWeather API. It leverages the Luxon library to format timestamps according to the local timezone and offers utilities for extracting weather icons.
+
+Overview
+--------
+- **`getWeatherData`**: Fetches weather data from the OpenWeather API.
+- **`formatCurrentWeather`**: Formats raw weather data into a simplified structure.
+- **`getFormattedWeatherData`**: Fetches and formats current weather data.
+- **`formatToLocalTime`**: Converts Unix timestamps to formatted local time using Luxon.
+- **`iconUrlFromCode`**: Generates URLs for weather icons based on the icon code.
+
+Components and Libraries Used
+-----------------------------
+1. **Luxon Library**:
+   - Used for timezone handling and formatting timestamps.
+
+2. **OpenWeather API**:
+   - Provides weather data including temperature, humidity, wind speed, etc.
+
+API Configuration
+-----------------
+- **API_KEY**: Retrieved from environment variables via `import.meta.env.VITE_APP_API_KEY`.
+- **BASE_URL**: Base endpoint for API calls, stored in `VITE_APP_API_URL`.
+
+Key Functions
+-------------
+1. **`getWeatherData(infoType, searchParams)`**:
+   - Fetches data from the OpenWeather API using the specified info type (e.g., "weather").
+   - Uses `fetch` with proper error handling for failed requests.
+   - Example usage: 
+     ```javascript
+     getWeatherData("weather", { q: "Delhi", units: "metric" });
+     ```
+
+2. **`formatCurrentWeather(data)`**:
+   - Formats the raw weather data to extract essential information, such as:
+     - Temperature, humidity, wind speed
+     - City name, coordinates, sunrise/sunset times
+   - Example output:
+     ```javascript
+     {
+       lat: 28.6667,
+       lon: 77.2167,
+       temp: 23.05,
+       feels_like: 23.32,
+       name: "Delhi",
+       country: "IN"
+     }
+     ```
+
+3. **`getFormattedWeatherData(searchParams)`**:
+   - Fetches and formats current weather data based on search parameters.
+   - Can be extended to fetch forecast weather data (commented code).
+
+4. **`formatToLocalTime(secs, offset, format)`**:
+   - Converts a Unix timestamp to local time, applying the specified timezone offset.
+   - Example usage:
+     ```javascript
+     formatToLocalTime(1729799251, 19800, "hh:mm a");
+     ```
+
+5. **`iconUrlFromCode(code)`**:
+   - Generates a URL to retrieve the weather icon from OpenWeather.
+   - Example:
+     ```javascript
+     iconUrlFromCode("50n"); // Returns https://openweathermap.org/img/wn/50n@2x.png
+     ```
+
+How to Use
+----------
+1. **Install dependencies**:
+   ```bash
+   npm install luxon

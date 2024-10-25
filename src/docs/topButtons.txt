@@ -1,0 +1,58 @@
+
+TopButtons Component Documentation
+==================================
+
+Overview:
+---------
+The `TopButtons` component is a simple React functional component that renders a set of buttons 
+representing popular cities. When a city button is clicked, it triggers a query update to fetch 
+the weather data for the selected city.
+
+Dependencies:
+--------------
+1. `react`: Used to create the React component.
+
+Props:
+------
+1. `setQuery (function)`: A function passed from the parent component to update the query with 
+   the selected city name.
+
+Data:
+-----
+1. `cities (array)`: 
+   - A static array of objects, each containing:
+     - `id`: A unique identifier for each city.
+     - `title`: The name of the city to be displayed on the button.
+
+JSX Structure:
+---------------
+1. **City Buttons**:
+   - Each city in the `cities` array is rendered as a button using the `map()` function.
+   - The button displays the city name and triggers `setQuery` when clicked.
+
+CSS Styling and Classes:
+------------------------
+- `flex`, `items-center`, `justify-around`, `my-6`, `gap-x-2`: Layout and spacing classes (likely from TailwindCSS).
+- `text-white`, `text-lg`, `font-medium`: Styling classes for button appearance.
+
+How it Works:
+-------------
+- The component maps over the `cities` array to render a button for each city.
+- When a button is clicked, it calls `setQuery` with the selected city's name as the query parameter.
+
+How to Use:
+-----------
+1. Import the `TopButtons` component into the parent component.
+2. Pass the `setQuery` function as a prop to handle query updates.
+
+Example Usage:
+--------------
+```
+import TopButtons from "./TopButtons";
+
+<TopButtons setQuery={setWeatherQuery} />
+```
+
+Notes:
+------
+- Ensure the `setQuery` function is properly defined in the parent component to handle the query updates.

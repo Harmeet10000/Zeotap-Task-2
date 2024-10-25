@@ -1,0 +1,156 @@
+Documentation for App.jsx
+
+This documentation provides an overview of the code, its purpose, key components, and how the weather data is managed within the application.
+
+Overview
+--------
+The App.jsx file serves as the main component for the weather application. It:
+- Manages state for weather data, selected city, units, and loading state.
+- Fetches weather data for a list of metropolitan cities at regular intervals.
+- Provides an input field to adjust the polling interval dynamically.
+- Uses the React-Toastify library to display notifications for events like successful or failed data fetches.
+
+Components and Libraries Used
+-----------------------------
+1. React Hooks:
+   - useState: Manages local component state.
+   - useEffect: Manages side effects, like fetching weather data or starting intervals.
+
+2. Details Component:
+   - Displays the weather data fetched from the API.
+
+3. ToastContainer from React-Toastify:
+   - Displays notifications for data fetching events.
+
+4. getFormattedWeatherData Function:
+   - Fetches weather data from the OpenWeather API, formats it, and returns the results.
+
+Key State Variables
+-------------------
+1. query:
+   - Stores the selected city name or coordinates.
+
+2. units:
+   - Stores the selected unit (e.g., metric or imperial).
+
+3. weatherData:
+   - Stores the weather data for multiple cities.
+
+4. weather:
+   - Stores the weather data for the specific queried city.
+
+5. loading:
+   - Manages the loading state while weather data is being fetched.
+
+6. pollingInterval:
+   - Stores the interval (in minutes) for polling weather data.
+
+Polling Weather Data Logic
+--------------------------
+Batch Fetching Weather Data
+---------------------------
+const fetchWeatherForMetros = async () => {
+  setLoading(true);
+  try {
+    const weatherPromises = metros.map((city) =>
+      getFormattedWeatherData({ q: city, units })
+    );
+    const data = await Promise.all(weatherPromises);
+    setWeatherData(data);
+  } catch (error) {
+    console.error("Error fetching weather for metros:", error);
+    toast.error("Failed to fetch weather data for some cities.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+Polling Interval Setup
+----------------------
+const interval = setInterval(fetchWeatherForMetros, intervalInMilliseconds);
+return () => clearInterval(interval); // Cleanup on unmount
+
+useEffect for Polling and Data Fetching
+---------------------------------------
+Polling Weather Data:
+Runs whenever the units or pollingInterval state changes.
+
+useEffect(() => {
+  startPollingWeatherData();
+}, [units, pollingInterval]);
+
+Fetching Specific City Weather:
+Runs whenever the query changes.
+
+useEffect(() => {
+  if (!query.q && (!query.lat || !query.lon)) return;
+  const fetchWeather = async () => {
+    // Fetch logic here...
+  };
+  fetchWeather();
+}, [query, units]);
+
+Dynamic Polling Interval Input
+------------------------------
+<input
+  type="number"
+  value={pollingInterval}
+  onChange={(e) => setPollingInterval(Number(e.target.value))}
+  className="p-2 rounded bg-gray-100"
+  min={1} // Minimum interval of 1 minute
+/>
+
+Allows the user to dynamically set the polling interval (in minutes) for fetching weather data.
+Debouncing could be added to optimize state updates for large inputs.
+
+Handling Loading State
+----------------------
+{loading ? (
+  <p className="text-white text-xl text-center">Loading weather data...</p>
+) : (
+  <Details
+    weatherData={weatherDetails}
+    setQuery={setQuery}
+    units={units}
+    setUnits={setUnits}
+  />
+)}
+
+Displays a loading message while weather data is being fetched.
+Once the data is fetched, it renders the Details component with the relevant weather data.
+
+Using ToastContainer for Notifications
+--------------------------------------
+<ToastContainer autoClose={1000} theme="colored" newestOnTop={true} />
+
+React-Toastify provides feedback notifications, such as:
+- Success message when weather data is fetched.
+- Error message if data fetching fails.
+
+How to Run the Application
+--------------------------
+1. Install dependencies:
+   npm install
+
+2. Start the development server:
+   npm start
+
+3. Adjust Polling Interval:
+   Use the input field in the UI to set the polling interval (in minutes).
+
+Performance Optimizations
+-------------------------
+1. Batch API Calls:
+   Uses Promise.all to fetch weather data for multiple cities concurrently, reducing network overhead.
+
+2. Cleanup on Component Unmount:
+   Clears intervals to prevent memory leaks.
+
+3. Debounced Input Handling (Optional):
+   Can be added to avoid unnecessary re-renders when the user changes the polling interval frequently.
+
+Error Handling
+--------------
+- API Errors: Catches and logs API errors with try-catch.
+- Toast Notifications: Displays error messages using React-Toastify if the API call fails.
+

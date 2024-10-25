@@ -1,0 +1,75 @@
+
+Inputs Component Documentation
+===============================
+
+Overview:
+---------
+This React functional component `Inputs` provides user input fields for a weather application. 
+It allows users to search for weather details of a city or get the weather based on their current location.
+Additionally, users can toggle between metric (°C) and imperial (°F) units for temperature display.
+
+Dependencies:
+--------------
+1. `react`: React hooks (useState) are used to manage the component's state.
+2. `@iconscout/react-unicons`: Icons for search and location functionalities.
+3. `react-toastify`: Provides notifications to indicate fetching or fetched location status.
+
+Props:
+------
+1. `setQuery (function)`: Updates the query object used for fetching weather data.
+2. `units (string)`: Current selected temperature unit (either "metric" or "imperial").
+3. `setUnits (function)`: Updates the unit state to switch between "metric" and "imperial".
+
+State:
+------
+1. `city (string)`: Stores the user input for the city name.
+
+Functions:
+-----------
+1. `handleUnitsChange(e)`: 
+   - Changes the temperature unit between metric (°C) and imperial (°F).
+   - Triggers `setUnits` if the selected unit is different from the current one.
+
+2. `handleSearchClick()`:
+   - If the `city` state is not empty, it triggers `setQuery` to search for weather data of the entered city.
+
+3. `handleLocationClick()`:
+   - Uses the browser's geolocation API to get the user's current coordinates (latitude and longitude).
+   - Displays toast notifications for location fetching status.
+   - Updates the query with latitude and longitude using `setQuery`.
+
+JSX Structure:
+---------------
+1. **Input Field for City Search**:
+   - `<input>`: A text input where users can type the city name to search.
+
+2. **Search Icon**:
+   - `<UilSearch>`: An icon for triggering the search when clicked.
+
+3. **Location Icon**:
+   - `<UilLocationPoint>`: An icon to fetch the user's current location when clicked.
+
+4. **Temperature Unit Toggle Buttons**:
+   - Buttons labeled °C and °F to switch between metric and imperial units.
+
+CSS Styling and Classes:
+------------------------
+- `flex`, `justify-center`, `my-6`, `space-x-4`: Utility classes from a CSS framework like TailwindCSS for layout.
+- `text-xl`, `font-light`, `shadow-xl`: Styling classes for typography and appearance.
+- `transition ease-out hover:scale-125`: Animation classes to scale icons and buttons on hover.
+
+How to Use:
+-----------
+1. Place the `Inputs` component inside your main weather component.
+2. Pass the required props `setQuery`, `units`, and `setUnits` from the parent component.
+
+Example Usage:
+--------------
+```
+<Inputs setQuery={setWeatherQuery} units={temperatureUnits} setUnits={setTemperatureUnits} />
+```
+
+Notes:
+------
+- Make sure to have the `react-toastify` and `@iconscout/react-unicons` libraries installed to avoid runtime errors.
+- Geolocation permission from the user is required to fetch the location data.
