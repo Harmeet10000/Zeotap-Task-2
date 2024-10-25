@@ -44,6 +44,7 @@ Below are the key dependencies required for the project. Refer to `package.json`
 
 1. **Node.js** (v14 or higher)
 2. **npm** or **yarn** (for dependency management)
+3. **Vite** (for running frontend)
 
 ---
 
