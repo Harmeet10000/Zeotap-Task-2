@@ -19,6 +19,11 @@ The **Zeotap Weather Application** is a **React-based weather dashboard** that f
 
 ---
 
+## Docs
+- See Docs for more info on individual files.
+
+---
+
 ## Dependencies
 
 Below are the key dependencies required for the project. Refer to `package.json` for complete details:
