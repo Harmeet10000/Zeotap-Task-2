@@ -162,6 +162,7 @@ This project is licensed under the MIT License.
 
 ---
 ![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-11-20.png)
+![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-19%2003-37-14.png)
 ![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-11-40.png)
 ![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-12-49.png)
 ![Weather Dashboard Screenshot](https://github.com/Harmeet10000/Zeotap-Task-2/blob/main/public/Screenshot%20from%202024-10-25%2001-30-25.png)
